@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アラームアプリ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>アラーム</h1>
+    <label for="alarmTime">アラーム時刻を設定:</label>
+    <input type="time" id="alarmTime" step="1">
+    <button id="setAlarm">アラームをセット</button>
+    
+    <label for="snoozeInterval">スヌーズ間隔（分）:</label>
+    <input type="number" id="snoozeInterval" min="1" placeholder="5" />
+    
+    <label for="snoozeEndTime">スヌーズ終了時間（時:分）:</label>
+    <input type="time" id="snoozeEndTime" />
+    
+    <button id="stopAlarm" disabled>アラーム停止</button>
+    <button id="snoozeAlarm" disabled>スヌーズ</button>
+    
+    <p id="status">アラームは未設定です。</p>
+    
+    <!-- 音声ファイルの追加 -->
+    <audio id="alarmSound" src="alarm.mp3" preload="auto"></audio>
+
+    <!-- 天気情報を表示する場所 -->
+    <div id="weatherInfo"></div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
