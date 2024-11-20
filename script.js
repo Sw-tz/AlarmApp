@@ -92,8 +92,12 @@ document.getElementById('setAlarm').addEventListener('click', () => {
 // アラーム音を再生する関数
 function playAlarmSound() {
     const alarmSound = document.getElementById('alarmSound');
-    alarmSound.play();
+    // ユーザーのタップやクリックで音を再生する
+    alarmSound.play().catch(error => {
+        console.error("音声再生エラー:", error);
+    });
 }
+
 
 // アラーム停止ボタン
 document.getElementById('stopAlarm').addEventListener('click', () => {
@@ -153,15 +157,16 @@ document.getElementById('snoozeAlarm').addEventListener('click', () => {
 function fetchWeather() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(getWeatherData, (error) => {
-            // 位置情報が取得できなかった場合、デフォルトで東京の天気を表示する
             console.error("位置情報取得エラー: ", error);
+            alert("位置情報が取得できませんでした。位置情報を有効にしてください。");
             fetchWeatherForDefaultLocation();
         });
     } else {
+        alert("このブラウザでは位置情報がサポートされていません。");
         fetchWeatherForDefaultLocation();
     }
-    
 }
+
 
 // 位置情報をもとに天気情報を取得
 function getWeatherData(position) {
