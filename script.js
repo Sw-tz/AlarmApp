@@ -92,11 +92,22 @@ document.getElementById('setAlarm').addEventListener('click', () => {
 // アラーム音を再生する関数
 function playAlarmSound() {
     const alarmSound = document.getElementById('alarmSound');
-    // ユーザーのタップやクリックで音を再生する
-    alarmSound.play().catch(error => {
-        console.error("音声再生エラー:", error);
-    });
+    alarmSound.loop = true; // 音をループ再生に設定
+    alarmSound.play();
 }
+
+
+// アラームが鳴るタイミングに合わせて、音を再生するためにボタンのクリック時に呼び出し
+document.getElementById('setAlarm').addEventListener('click', () => {
+    // その他の処理...
+    setTimeout(() => {
+        playAlarmSound();
+        document.getElementById('status').textContent = "アラームが鳴りました！";
+        document.getElementById('stopAlarm').disabled = false;
+        document.getElementById('snoozeAlarm').disabled = false;
+    }, timeToAlarm);
+});
+
 
 
 // アラーム停止ボタン
@@ -123,13 +134,28 @@ document.getElementById('toggleSnooze').addEventListener('click', () => {
         document.getElementById('toggleSnooze').textContent = "スヌーズ機能を有効";
     }
 
-    // スヌーズを無効にした場合、スヌーズボタンを無効化
+    // スヌーズを無効にした場合、スヌーズ関連の要素を非表示に
     if (!snoozeEnabled) {
         document.getElementById('snoozeAlarm').disabled = true;
+        document.getElementById('snoozeInterval').disabled = true;
+        document.getElementById('snoozeEndTime').disabled = true;
+
+        // スヌーズ関連のフォームを非表示にする
+        document.getElementById('snoozeInterval').style.display = 'none';
+        document.getElementById('snoozeEndTime').style.display = 'none';
+        document.getElementById('snoozeAlarm').style.display = 'none';
     } else {
         document.getElementById('snoozeAlarm').disabled = false;
+        document.getElementById('snoozeInterval').disabled = false;
+        document.getElementById('snoozeEndTime').disabled = false;
+
+        // スヌーズ関連のフォームを再表示
+        document.getElementById('snoozeInterval').style.display = 'inline';
+        document.getElementById('snoozeEndTime').style.display = 'inline';
+        document.getElementById('snoozeAlarm').style.display = 'inline';
     }
 });
+
 
 // スヌーズ機能の処理
 document.getElementById('snoozeAlarm').addEventListener('click', () => {
@@ -157,6 +183,7 @@ document.getElementById('snoozeAlarm').addEventListener('click', () => {
 function fetchWeather() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(getWeatherData, (error) => {
+            // 位置情報取得エラーの場合
             console.error("位置情報取得エラー: ", error);
             alert("位置情報が取得できませんでした。位置情報を有効にしてください。");
             fetchWeatherForDefaultLocation();
@@ -167,10 +194,9 @@ function fetchWeather() {
     }
 }
 
-
 // 位置情報をもとに天気情報を取得
 function getWeatherData(position) {
-    const apiKey = "1534bd56626df4b167a4432eec070ae7" // ここにOpenWeatherMapのAPIキーを設定
+    const apiKey = "1534bd56626df4b167a4432eec070ae7"; // OpenWeatherMapのAPIキー
     const lat = position.coords.latitude;
     const lon = position.coords.longitude;
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=ja`;
@@ -181,15 +207,16 @@ function getWeatherData(position) {
             const weather = data.weather[0].description;
             const temperature = data.main.temp;
             const weatherInfo = `天気: ${weather}, 気温: ${temperature}°C`;
-            displayWeatherInfo(weatherInfo);
+            showWeatherPopup(weatherInfo);  // ポップアップで天気表示
         })
         .catch(error => console.error("天気情報の取得に失敗しました:", error));
 }
 
+
 function fetchWeatherForDefaultLocation() {
     const defaultLat = 34.8258; // 藤枝市の緯度
     const defaultLon = 138.2632; // 藤枝市の経度
-    const apiKey = "1534bd56626df4b167a4432eec070ae7" // ここにOpenWeatherMapのAPIキーを設定
+    const apiKey = "1534bd56626df4b167a4432eec070ae7"; // OpenWeatherMapのAPIキー
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${defaultLat}&lon=${defaultLon}&appid=${apiKey}&units=metric&lang=ja`;
 
     fetch(url)
@@ -203,8 +230,32 @@ function fetchWeatherForDefaultLocation() {
         .catch(error => console.error("天気情報の取得に失敗しました:", error));
 }
 
-
-// 天気情報を表示する
 function displayWeatherInfo(weatherInfo) {
     document.getElementById('weatherInfo').textContent = weatherInfo;
 }
+
+// 天気情報をポップアップ表示する
+function showWeatherPopup(weatherInfo) {
+    const popup = document.createElement('div');
+    popup.id = 'weatherPopup';
+    popup.style.position = 'fixed';
+    popup.style.top = '50%';
+    popup.style.left = '50%';
+    popup.style.transform = 'translate(-50%, -50%)';
+    popup.style.padding = '20px';
+    popup.style.backgroundColor = '#fff';
+    popup.style.border = '2px solid #000';
+    popup.style.boxShadow = '0px 0px 10px rgba(0, 0, 0, 0.1)';
+    popup.innerHTML = `<h3>天気情報</h3><p>${weatherInfo}</p><button onclick="closeWeatherPopup()">閉じる</button>`;
+    document.body.appendChild(popup);
+}
+
+// ポップアップを閉じる関数
+function closeWeatherPopup() {
+    const popup = document.getElementById('weatherPopup');
+    if (popup) {
+        popup.remove();
+    }
+}
+
+
